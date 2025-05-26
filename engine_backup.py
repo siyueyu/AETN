@@ -44,18 +44,6 @@ def cam_max_norm(p, version='torch', e=1e-5):
             p = (p-min_v-e)/(max_v+e)
         return p
 
-<<<<<<< HEAD
-=======
-def correspondence_loss(img_patch, img_patch2):
-    image_patch = F.normalize(img_patch,dim=1)
-    image_patch2 = F.normalize(img_patch2.detach(),dim=1)
-    loss_scale = image_patch*image_patch2
-    loss_scale = torch.sum(loss_scale, dim=1)
-    loss_scale = torch.sigmoid(loss_scale)
-    loss_scale = -torch.log(loss_scale+1e-5)
-    loss_scale = torch.mean(loss_scale)
-    return loss_scale
->>>>>>> d02aef2 (update)
 
 
 def train_one_epoch(model: torch.nn.Module, data_loader: Iterable,
@@ -77,45 +65,19 @@ def train_one_epoch(model: torch.nn.Module, data_loader: Iterable,
         with torch.cuda.amp.autocast():
             outputs = model(samples)
             outputs2 = model(samples_aug, strong_aug=True)
-<<<<<<< HEAD
             if not isinstance(outputs, torch.Tensor):
                 outputs, patch_outputs, mtatt = outputs
                 outputs2, patch_outputs2, mtatt2 = outputs2
-=======
-            #outputs2 = model(samples_aug, strong_aug=True)
-            if not isinstance(outputs, torch.Tensor):
-                outputs, patch_outputs, mtatt, img_patch = outputs
-                outputs2, patch_outputs2, mtatt2, img_patch2 = outputs2
->>>>>>> d02aef2 (update)
             
             loss = F.multilabel_soft_margin_loss(outputs, targets)
             loss2 = F.multilabel_soft_margin_loss(outputs2, targets)
             #mtatt = F.interpolate(cam_max_norm(mtatt),scale_factor=0.5,mode='bilinear',align_corners=True)*targets.unsqueeze(2).unsqueeze(3)
-<<<<<<< HEAD
             mtatt2 = cam_max_norm(mtatt2)*targets.unsqueeze(2).unsqueeze(3)
-            loss_scale = torch.mean(torch.abs(mtatt-mtatt2))
+            loss_scale = torch.mean(torch.abs(mtatt-mtatt2.detach()))
             metric_logger.update(cls_loss=loss.item())
             metric_logger.update(cls2_loss=loss2.item())
             metric_logger.update(scale_loss=loss_scale.item())
-            loss = loss + loss2
-=======
-            img_patch = cam_max_norm(img_patch)*targets.unsqueeze(2).unsqueeze(3)
-            mtatt = cam_max_norm(mtatt)*targets.unsqueeze(2).unsqueeze(3)
-            img_patch2 = cam_max_norm(img_patch2)*targets.unsqueeze(2).unsqueeze(3)
-            mtatt2 = cam_max_norm(mtatt2)*targets.unsqueeze(2).unsqueeze(3)
-            # loss_scale1 = correspondence_loss(img_patch, img_patch2)
-            # loss_scale2 = correspondence_loss(img_patch2, img_patch)
-            loss_scale1 = torch.mean(torch.abs(mtatt- mtatt2.detach()))
-            loss_scale2 = torch.mean(torch.abs(img_patch- img_patch2.detach()))
-            #loss_scale2 = torch.mean(torch.abs(img_patch.detach() - img_patch2))
-            
-            metric_logger.update(cls_loss=loss.item())
-            metric_logger.update(cls2_loss=loss2.item())
-            metric_logger.update(scale_loss1=loss_scale1.item())
-            metric_logger.update(scale_loss2=loss_scale2.item())
-            loss = loss + loss2 + 0.5*(0.5*loss_scale1 + 0.5*loss_scale2)
-            #loss = loss + loss2 + loss_scale1 + loss_scale2
->>>>>>> d02aef2 (update)
+            loss = loss + loss2 + loss_scale
             if  patch_outputs is not None:
 
                 ploss = F.multilabel_soft_margin_loss(patch_outputs, targets)
@@ -166,11 +128,7 @@ def evaluate(data_loader, model, device):
         with torch.cuda.amp.autocast():
             output = model(images)
             if not isinstance(output, torch.Tensor):
-<<<<<<< HEAD
                 output, patch_output, mtatt = output
-=======
-                output, patch_output, mtatt, img_patch = output
->>>>>>> d02aef2 (update)
             loss = criterion(output, target)
             output = torch.sigmoid(output)
 

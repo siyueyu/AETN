@@ -118,7 +118,11 @@ class MCTformerV2(VisionTransformer):
         if return_att:
             return x_cls_logits, cams, patch_attn
         else:
+<<<<<<< HEAD
             return x_cls_logits, x_patch_logits, mtatt
+=======
+            return x_cls_logits, x_patch_logits, mtatt, x_patch
+>>>>>>> d02aef2 (update)
 
 
 class MCTformerV1(VisionTransformer):

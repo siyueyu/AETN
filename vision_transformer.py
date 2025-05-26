@@ -107,6 +107,7 @@ class Attention(nn.Module):
             patch_region = torch.zeros_like(attn_softmax)
             patch_region[:, :, self.num_classes:, self.num_classes:] = 1
 
+<<<<<<< HEAD
             # other_region = torch.zeros_like(attn_softmax)
             # other_region[:, :, 0:self.num_classes, 0:self.num_classes] = 1
             # other_region_diag = torch.eye(a_n).unsqueeze(0).repeat(a_b, 1, 1)
@@ -124,6 +125,8 @@ class Attention(nn.Module):
             # attn = cls_min_value*(attn**cls_valid_mask)
 
 
+=======
+>>>>>>> d02aef2 (update)
             img_attn_max = torch.max(attn_softmax, dim=-1, keepdim=True)[0]
             img_attn_mean = torch.mean(attn, dim=-1, keepdim=True).pow(0.5) #b cn 1
             img_attn_mean = img_attn_mean.expand(-1, -1, -1, a_n)
